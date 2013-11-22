@@ -4,3 +4,4 @@
 *.jar
 *.war
 *.ear
+/personal_dict/nbproject/private/
