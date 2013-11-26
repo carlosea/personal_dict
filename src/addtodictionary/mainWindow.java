@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -27,23 +26,13 @@ import org.hibernate.Session;
  */
 public class mainWindow extends javax.swing.JFrame {
 
-    /**
-     * Creates new form mainWindow
-     */
+
     public mainWindow() {
 
         initComponents();
         outputTableConf();
-        //Connection cn = connectToDB();
-        //try {
-        //Statement stmt = cn.createStatement();
-        // String querySelect = "SELECT word_pl, word_en word FROM word_list ORDER BY word_pl";
-        //ResultSet rs = stmt.executeQuery(querySelect);
-        List full = getHQLQuery(QUERY_FULL);
+       List full = getHQLQuery(QUERY_FULL);
         totalWordslbl.setText("Total words: " + full.size());
-        //} catch (SQLException ex) {
-        // Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        //}
     }
 
     /**
@@ -264,16 +253,8 @@ public class mainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addToDictActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToDictActionPerformed
-        //try {
-        //Statement stmt = getStmt();
         TreeSet<Entries> entries = new TreeSet<Entries>(getHQLQuery(QUERY_FULL));
         TreeSet<Entries> newEntries = new TreeSet<Entries>();
-        //String querySelect = "SELECT word_pl, word_en FROM word_list ORDER BY word_pl";
-        // ResultSet rs = stmt.executeQuery(querySelect);
-        //while (rs.next()) {
-        //    entry.add(new Entry(rs.getString(1).trim(), rs.getString(2).trim()));
-        // }
-
         for (int i = 0; i < tableIn.getRowCount(); i++) {
             boolean filled = tableIn.getValueAt(i, 0) != null && !tableIn.getValueAt(i, 0).toString().trim().equals("");
             if (filled) {
@@ -305,9 +286,6 @@ public class mainWindow extends javax.swing.JFrame {
                 newEntries.add(new Entries(word, 0, def));
             }
         }
-        //Iterator<Entries> itrWord = newEntries.iterator();
-        //Iterator<Entries> itrDef = newEntries.iterator();
-        //Iterator<Entries> itrList = entries.iterator();
         int added = 0;
         int nr = 0;
         boolean inList = false;
@@ -331,31 +309,9 @@ public class mainWindow extends javax.swing.JFrame {
             executeHQLQuery(UPDATE_QUERY, nr, nList.getWord());
         }
 
-        /*while (itrWord.hasNext()) {
-         while (itrList.hasNext()) {
-         if (itrWord.next().compareTo(itrList.next())) {
-         inList = true;
-         }
-         }
-         if (inList == false) {
-         nr++;
-            
-         String def = itrDef.next().getDefinition();
-         String word = itrWord.next().getWord();
-         insertData(nr, word, def);
-         //select oo.id, oo.name from OtherObject oo"
-         // String queryInsert = "INSERT INTO word_list (n, word_pl, word_en) VALUES (" + nr + ",'" + word_pl + "','" + word_en + "')";
-         // stmt.executeUpdate(queryInsert);
-         }*/
-
-
         addedlbl.setText("Words added: " + added);
         totalWordslbl.setText("Total words: " + entries.size());
-        //  stmt.close();
         updateTable();
-        // } catch (SQLException ex) {
-        //     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        // }
     }//GEN-LAST:event_addToDictActionPerformed
 
     private void introTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_introTextMouseClicked
@@ -391,13 +347,6 @@ public class mainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_tableInMouseClicked
 
     private void deleteAllbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteAllbtnMouseClicked
-        //try {
-        //    String queryDelete = "DELETE FROM word_list";
-        //     Statement stmt = connectToDB().createStatement();
-        //     stmt.executeUpdate(queryDelete);
-        // } catch (SQLException ex) {
-        //     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        //}
         executeHQLQuery(DELETE_QUERY_FULL, 0, "");
         updateTable();
     }//GEN-LAST:event_deleteAllbtnMouseClicked
@@ -420,12 +369,6 @@ public class mainWindow extends javax.swing.JFrame {
 
     private ListTableModel getTableModel() {
         try {
-            //try {
-
-            //Connection cn = connectToDB();
-            //Statement stmt = cn.createStatement();
-            //String querySelect = "SELECT n, word_pl, word_en word FROM word_list ORDER BY word_pl";
-            //ResultSet rs = stmt.executeQuery(querySelect);
             List list = getHQLQuery(QUERY_FULL);
             ArrayList<String> colName = new ArrayList<String>();
             colName.add("n");
@@ -440,15 +383,6 @@ public class mainWindow extends javax.swing.JFrame {
 
     }
 
-    /*private ResultSet executeStmt(String query) {
-     try {
-     Statement stmt = connectToDB().createStatement();
-     return stmt.executeQuery(query);
-     } catch (SQLException ex) {
-     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-     return null;
-     }
-     }*/
     private void updateTable() {
         table.setModel(getTableModel());
         outputTableConf();
@@ -462,23 +396,6 @@ public class mainWindow extends javax.swing.JFrame {
         }
     }
 
-    /*public static Connection connectToDB() {
-     Connection connection = null;
-     try {
-     Class.forName("org.postgresql.Driver");
-     } catch (ClassNotFoundException e) {
-     System.out.println("Where is your PostgreSQL JDBC Driver? "
-     + "Include in your library path!");
-     }
-     try {
-     connection = DriverManager.getConnection(
-     "jdbc:postgresql://localhost/dictionary", "postgres",
-     "postgres");
-     } catch (SQLException e) {
-     System.out.println("Connection Failed! Check output console");
-     }
-     return connection;
-     }*/
     public static Connection connectToDBbugflow() {
         Connection connection = null;
         try {
