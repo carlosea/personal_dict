@@ -5,3 +5,4 @@
 *.war
 *.ear
 /personal_dict/nbproject/private/
+/dist/

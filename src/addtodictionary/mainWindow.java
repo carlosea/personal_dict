@@ -1,5 +1,8 @@
 package addtodictionary;
 
+import dict.entity.Entries;
+import dict.util.HibernateUtil;
+import java.awt.Font;
 import java.awt.Image;
 import java.io.IOException;
 import java.sql.Connection;
@@ -8,13 +11,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.JTable;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 /**
  *
@@ -28,50 +33,17 @@ public class mainWindow extends javax.swing.JFrame {
     public mainWindow() {
 
         initComponents();
-        table.getColumnModel().getColumn(0).setMinWidth(30);
-        table.getColumnModel().getColumn(0).setPreferredWidth(30);
-        table.getColumnModel().getColumn(0).setMaxWidth(30);
-        table.getColumnModel().getColumn(1).setMinWidth(100);
-        table.getColumnModel().getColumn(1).setPreferredWidth(150);
-        table.getColumnModel().getColumn(1).setMaxWidth(200);
-        table.getColumnModel().getColumn(2).setMinWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(150);
-        table.getColumnModel().getColumn(2).setMaxWidth(200);
-        table.getColumnModel().getColumn(0).setResizable(false);
-        Connection cn = connectToDB();
-        try {
-            Statement stmt = cn.createStatement();
-            String querySelect = "SELECT word_pl, word_en word FROM word_list ORDER BY word_pl";
-            ResultSet rs = stmt.executeQuery(querySelect);
-            int n = 1;
-            while (rs.next()) {
-                n++;
-            }
-            totalWordslbl.setText("Total words: " + (n - 1));
-
-        } catch (SQLException ex) {
-            Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private ListTableModel getTableModel() {
-        try {
-            Connection cn = connectToDB();
-            Statement stmt = cn.createStatement();
-            String querySelect = "SELECT n, word_pl, word_en word FROM word_list ORDER BY word_pl";
-            ResultSet rs = stmt.executeQuery(querySelect);
-            ListTableModel model = ListTableModel.createModelFromResultSet(rs);
-            
-            ArrayList<String> colName = new ArrayList<String>();
-            colName.add("n");
-            colName.add("PL");
-            colName.add("EN");
-            model.columnNames = colName;
-            return model;
-        } catch (SQLException ex) {
-            Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+        outputTableConf();
+        //Connection cn = connectToDB();
+        //try {
+        //Statement stmt = cn.createStatement();
+        // String querySelect = "SELECT word_pl, word_en word FROM word_list ORDER BY word_pl";
+        //ResultSet rs = stmt.executeQuery(querySelect);
+        List full = getHQLQuery(QUERY_FULL);
+        totalWordslbl.setText("Total words: " + full.size());
+        //} catch (SQLException ex) {
+        // Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        //}
     }
 
     /**
@@ -96,8 +68,8 @@ public class mainWindow extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
-        tablee = new javax.swing.JTable();
-        jToolBar1 = new javax.swing.JToolBar();
+        tableIn = new javax.swing.JTable();
+        deleteAllbtn = new javax.swing.JButton();
 
         contextMenuPop.setInheritsPopupMenu(true);
 
@@ -152,63 +124,106 @@ public class mainWindow extends javax.swing.JFrame {
         });
 
         table.setFont(new java.awt.Font("Calibri", 1, 11)); // NOI18N
+        table.setForeground(new java.awt.Color(6, 60, 60));
         table.setModel(getTableModel());
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setColumnSelectionAllowed(true);
         jScrollPane2.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        tablee.setBackground(new java.awt.Color(153, 255, 255));
-        tablee.setModel(new javax.swing.table.DefaultTableModel(
+        tableIn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null},
-                {null},
-                {null},
-                {null}
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
             },
             new String [] {
-                "Title 1"
+                "Word", "Definition"
             }
-        ));
-        tablee.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        jScrollPane3.setViewportView(tablee);
-        tablee.getColumnModel().getColumn(0).setMinWidth(150);
-        tablee.getColumnModel().getColumn(0).setPreferredWidth(100);
-        tablee.getColumnModel().getColumn(0).setMaxWidth(200);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
 
-        jToolBar1.setRollover(true);
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tableIn.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tableIn.setColumnSelectionAllowed(true);
+        tableIn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableInMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(tableIn);
+        tableIn.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        tableIn.getColumnModel().getColumn(0).setMinWidth(150);
+        tableIn.getColumnModel().getColumn(0).setPreferredWidth(100);
+        tableIn.getColumnModel().getColumn(0).setMaxWidth(200);
+        tableIn.getColumnModel().getColumn(1).setMinWidth(150);
+        tableIn.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tableIn.getColumnModel().getColumn(1).setMaxWidth(200);
+
+        deleteAllbtn.setText("DEL");
+        deleteAllbtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                deleteAllbtnMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout Panel1Layout = new javax.swing.GroupLayout(Panel1);
         Panel1.setLayout(Panel1Layout);
         Panel1Layout.setHorizontalGroup(
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Panel1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(Panel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(titlelbl)
-                        .addGap(72, 72, 72)
-                        .addComponent(totalWordslbl))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(Panel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(Panel1Layout.createSequentialGroup()
-                                .addComponent(getDBdata)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(addToDict))
-                            .addComponent(jScrollPane1))
-                        .addGap(18, 18, 18)
-                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(Panel1Layout.createSequentialGroup()
-                                .addComponent(addedlbl)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(updateTablebtn))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(70, 70, 70)
-                        .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(titlelbl)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(deleteAllbtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(40, Short.MAX_VALUE))
+                        .addComponent(totalWordslbl)
+                        .addGap(86, 86, 86)
+                        .addComponent(getDBdata, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(Panel1Layout.createSequentialGroup()
+                        .addComponent(addToDict)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(addedlbl)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(updateTablebtn))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         Panel1Layout.setVerticalGroup(
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -216,31 +231,19 @@ public class mainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(titlelbl)
-                    .addComponent(totalWordslbl))
+                    .addComponent(totalWordslbl)
+                    .addComponent(addedlbl)
+                    .addComponent(updateTablebtn)
+                    .addComponent(addToDict)
+                    .addComponent(getDBdata, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(deleteAllbtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Panel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(Panel1Layout.createSequentialGroup()
-                                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(getDBdata)
-                                    .addComponent(addToDict))
-                                .addGap(13, 13, 13))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Panel1Layout.createSequentialGroup()
-                                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(addedlbl)
-                                    .addComponent(updateTablebtn))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)))
-                    .addGroup(Panel1Layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(Panel1Layout.createSequentialGroup()
-                        .addGap(145, 145, 145)
-                        .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jScrollPane2)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 555, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 555, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -248,14 +251,12 @@ public class mainWindow extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 90, Short.MAX_VALUE))
+            .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -263,41 +264,98 @@ public class mainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addToDictActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToDictActionPerformed
-        try {
-            Connection cn = connectToDB();
-            Statement stmt = cn.createStatement();
-            TreeSet<String> list = new TreeSet<String>();
-            String querySelect = "SELECT word_pl FROM word_list ORDER BY word_pl";
-            ResultSet rs = stmt.executeQuery(querySelect);
-            while (rs.next()) {
-                list.add(rs.getString(1).trim());
+        //try {
+        //Statement stmt = getStmt();
+        TreeSet<Entries> entries = new TreeSet<Entries>(getHQLQuery(QUERY_FULL));
+        TreeSet<Entries> newEntries = new TreeSet<Entries>();
+        //String querySelect = "SELECT word_pl, word_en FROM word_list ORDER BY word_pl";
+        // ResultSet rs = stmt.executeQuery(querySelect);
+        //while (rs.next()) {
+        //    entry.add(new Entry(rs.getString(1).trim(), rs.getString(2).trim()));
+        // }
+
+        for (int i = 0; i < tableIn.getRowCount(); i++) {
+            boolean filled = tableIn.getValueAt(i, 0) != null && !tableIn.getValueAt(i, 0).toString().trim().equals("");
+            if (filled) {
+                Object valueAtWord = tableIn.getValueAt(i, 0);
+                Object valueAtDef = tableIn.getValueAt(i, 1);
+                String word = "";
+                String def = "";
+                char[] wordArr = valueAtWord.toString().trim().toCharArray();
+                char first = Character.toUpperCase(wordArr[0]);
+                word = first + valueAtWord.toString().trim().substring(1).toLowerCase().replace("_", " ");
+                if (valueAtDef != null && valueAtDef.toString().trim().equals("")) {
+                    char[] defArr = valueAtDef.toString().trim().toCharArray();
+                    char firstDef = Character.toUpperCase(defArr[0]);
+                    def = firstDef + valueAtDef.toString().trim().substring(1).toLowerCase().replace("_", " ");
+                }
+                newEntries.add(new Entries(word, 0, def));
             }
-            String queryDelete = "DELETE FROM word_list";
-            stmt.executeUpdate(queryDelete);
-            String[] text = introText.getText().split("\\r?\\n");
-            for (int i = 0; i < text.length; i++) {
-                if (!text[i].equals("")) {
-                    char first = Character.toUpperCase(text[i].trim().toLowerCase().replace("_", " ").charAt(0));
-                    String word = first + text[i].substring(1).trim().toLowerCase().replace("_", " ");
-                    list.add(word);
+        }
+
+        String[] txtBoxEntry = introText.getText().split("\\r?\\n");
+
+        for (int i = 0; i < txtBoxEntry.length; i++) {
+            String[] text = txtBoxEntry[i].split("-");
+            if (!text[0].equals("")) {
+                char first = Character.toUpperCase(text[0].trim().charAt(0));
+                char firstDef = Character.toUpperCase(text[1].trim().charAt(0));
+                String word = first + text[0].trim().substring(1).toLowerCase().replace("_", " ");
+                String def = firstDef + text[1].trim().substring(1).toLowerCase().replace("_", " ");
+                newEntries.add(new Entries(word, 0, def));
+            }
+        }
+        //Iterator<Entries> itrWord = newEntries.iterator();
+        //Iterator<Entries> itrDef = newEntries.iterator();
+        //Iterator<Entries> itrList = entries.iterator();
+        int added = 0;
+        int nr = 0;
+        boolean inList = false;
+        for (Entries newE : newEntries) {
+            for (Entries e : entries) {
+                if (newE.getWord().equals(e.getWord())) {
+                    inList = true;
                 }
             }
-            Iterator<String> itr = list.iterator();
-            int added = 0;
-            int nr = 0;
-            String word_en = "";
-            while (itr.hasNext()) {
-                nr++;
-                String word_pl = itr.next();
-                String queryInsert = "INSERT INTO word_list (n, word_pl, word_en) VALUES (" + nr + ",'" + word_pl + "','" + word_en + "')";
-                stmt.executeUpdate(queryInsert);
+            if (inList == false) {
+                String def = newE.getDefinition();
+                String word = newE.getWord();
+                insertData(nr, word, def);
+            } else {
+                inList = false;
             }
-            addedlbl.setText("Words added: " + added);
-            totalWordslbl.setText("Total words: " + list.size());
-            stmt.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
+        TreeSet<Entries> newList = new TreeSet<Entries>(getHQLQuery(QUERY_FULL));
+        for (Entries nList : newList) {
+            nr++;
+            executeHQLQuery(UPDATE_QUERY, nr, nList.getWord());
+        }
+
+        /*while (itrWord.hasNext()) {
+         while (itrList.hasNext()) {
+         if (itrWord.next().compareTo(itrList.next())) {
+         inList = true;
+         }
+         }
+         if (inList == false) {
+         nr++;
+            
+         String def = itrDef.next().getDefinition();
+         String word = itrWord.next().getWord();
+         insertData(nr, word, def);
+         //select oo.id, oo.name from OtherObject oo"
+         // String queryInsert = "INSERT INTO word_list (n, word_pl, word_en) VALUES (" + nr + ",'" + word_pl + "','" + word_en + "')";
+         // stmt.executeUpdate(queryInsert);
+         }*/
+
+
+        addedlbl.setText("Words added: " + added);
+        totalWordslbl.setText("Total words: " + entries.size());
+        //  stmt.close();
+        updateTable();
+        // } catch (SQLException ex) {
+        //     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        // }
     }//GEN-LAST:event_addToDictActionPerformed
 
     private void introTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_introTextMouseClicked
@@ -324,8 +382,77 @@ public class mainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_getDBdataMouseClicked
 
     private void updateTablebtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_updateTablebtnMouseClicked
-        table.setModel(getTableModel());
+        updateTable();
     }//GEN-LAST:event_updateTablebtnMouseClicked
+
+    private void tableInMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableInMouseClicked
+        ContextMenuMouseListener contextMenuMouseListener = new ContextMenuMouseListener();
+        contextMenuMouseListener.mouseClicked(evt);
+    }//GEN-LAST:event_tableInMouseClicked
+
+    private void deleteAllbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteAllbtnMouseClicked
+        //try {
+        //    String queryDelete = "DELETE FROM word_list";
+        //     Statement stmt = connectToDB().createStatement();
+        //     stmt.executeUpdate(queryDelete);
+        // } catch (SQLException ex) {
+        //     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        //}
+        executeHQLQuery(DELETE_QUERY_FULL, 0, "");
+        updateTable();
+    }//GEN-LAST:event_deleteAllbtnMouseClicked
+
+    public void outputTableConf() {
+        Font font = new Font("Calibri", Font.BOLD, 12);
+
+        table.getColumnModel().getColumn(0).setMinWidth(30);
+        table.getColumnModel().getColumn(0).setPreferredWidth(30);
+        table.getColumnModel().getColumn(0).setMaxWidth(30);
+        table.setFont(font);
+        table.getColumnModel().getColumn(1).setMinWidth(100);
+        table.getColumnModel().getColumn(1).setPreferredWidth(150);
+        table.getColumnModel().getColumn(1).setMaxWidth(200);
+        table.getColumnModel().getColumn(2).setMinWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(150);
+        table.getColumnModel().getColumn(2).setMaxWidth(200);
+        table.getColumnModel().getColumn(0).setResizable(false);
+    }
+
+    private ListTableModel getTableModel() {
+        try {
+            //try {
+
+            //Connection cn = connectToDB();
+            //Statement stmt = cn.createStatement();
+            //String querySelect = "SELECT n, word_pl, word_en word FROM word_list ORDER BY word_pl";
+            //ResultSet rs = stmt.executeQuery(querySelect);
+            List list = getHQLQuery(QUERY_FULL);
+            ArrayList<String> colName = new ArrayList<String>();
+            colName.add("n");
+            colName.add("PL");
+            colName.add("EN");
+            ListTableModel model = ListTableModel.createModelFromHQL(list, colName);
+            return model;
+        } catch (SQLException ex) {
+            Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+
+    }
+
+    /*private ResultSet executeStmt(String query) {
+     try {
+     Statement stmt = connectToDB().createStatement();
+     return stmt.executeQuery(query);
+     } catch (SQLException ex) {
+     Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+     return null;
+     }
+     }*/
+    private void updateTable() {
+        table.setModel(getTableModel());
+        outputTableConf();
+    }
 
     private Image getIcon() {
         try {
@@ -335,24 +462,23 @@ public class mainWindow extends javax.swing.JFrame {
         }
     }
 
-    public static Connection connectToDB() {
-        Connection connection = null;
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Where is your PostgreSQL JDBC Driver? "
-                    + "Include in your library path!");
-        }
-        try {
-            connection = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost/dictionary", "postgres",
-                    "postgres");
-        } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
-        }
-        return connection;
-    }
-
+    /*public static Connection connectToDB() {
+     Connection connection = null;
+     try {
+     Class.forName("org.postgresql.Driver");
+     } catch (ClassNotFoundException e) {
+     System.out.println("Where is your PostgreSQL JDBC Driver? "
+     + "Include in your library path!");
+     }
+     try {
+     connection = DriverManager.getConnection(
+     "jdbc:postgresql://localhost/dictionary", "postgres",
+     "postgres");
+     } catch (SQLException e) {
+     System.out.println("Connection Failed! Check output console");
+     }
+     return connection;
+     }*/
     public static Connection connectToDBbugflow() {
         Connection connection = null;
         try {
@@ -369,6 +495,47 @@ public class mainWindow extends javax.swing.JFrame {
             System.out.println("Connection Failed! Check output console");
         }
         return connection;
+    }
+    private static String QUERY_FULL = "from Entries";
+    private static String DELETE_QUERY_FULL = "DELETE FROM Entries";
+    private static String UPDATE_QUERY = "UPDATE Entries set n = :nr "+ 
+             "WHERE word = :word";
+
+    private void executeHQLQuery(String hql, int nr, String word) {
+        try {
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query q = session.createQuery(hql);
+            if (hql.equals(UPDATE_QUERY)) {
+                q.setParameter("nr", nr);
+                q.setParameter("word", word);
+            }
+            q.executeUpdate();
+            session.getTransaction().commit();
+        } catch (HibernateException he) {
+            he.printStackTrace();
+        }
+    }
+
+    private List getHQLQuery(String hql) {
+        try {
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query q = session.createQuery(hql);
+            return q.list();
+        } catch (HibernateException he) {
+            he.printStackTrace();
+            return null;
+        }
+    }
+
+    private void insertData(int n, String word, String def) {
+        Session sess = HibernateUtil.getSessionFactory().openSession();
+        sess.beginTransaction();
+        Entries entry = new Entries(word, n, def);
+        sess.save(entry);
+        System.out.println("Successfully data insert in database");
+        sess.getTransaction().commit();
     }
 
     /**
@@ -410,14 +577,14 @@ public class mainWindow extends javax.swing.JFrame {
     private javax.swing.JButton addToDict;
     private javax.swing.JLabel addedlbl;
     private javax.swing.JPopupMenu contextMenuPop;
+    private javax.swing.JButton deleteAllbtn;
     private javax.swing.JButton getDBdata;
     private javax.swing.JTextArea introText;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTable table;
-    private javax.swing.JTable tablee;
+    private javax.swing.JTable tableIn;
     private javax.swing.JLabel titlelbl;
     private javax.swing.JLabel totalWordslbl;
     private javax.swing.JButton updateTablebtn;

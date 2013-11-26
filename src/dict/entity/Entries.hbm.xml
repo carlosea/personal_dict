@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-11-26 09:53:47 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="dict.entity.Entries" table="entries" schema="public">
+        <id name="word" type="string">
+            <column name="word" />
+            <generator class="assigned" />
+        </id>
+        <property name="n" type="java.lang.Integer">
+            <column name="n" />
+        </property>
+        <property name="definition" type="string">
+            <column name="definition" />
+        </property>
+    </class>
+</hibernate-mapping>
