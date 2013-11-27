@@ -4,6 +4,7 @@ import dict.entity.Entries;
 import dict.util.HibernateUtil;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +31,7 @@ public class mainWindow extends javax.swing.JFrame {
     public mainWindow() {
 
         initComponents();
+        deleteAllbtn.setEnabled(false);
         outputTableConf();
        List full = getHQLQuery(QUERY_FULL);
         totalWordslbl.setText("Total words: " + full.size());
@@ -59,6 +61,7 @@ public class mainWindow extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         tableIn = new javax.swing.JTable();
         deleteAllbtn = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         contextMenuPop.setInheritsPopupMenu(true);
 
@@ -70,9 +73,9 @@ public class mainWindow extends javax.swing.JFrame {
         Panel1.setBackground(new java.awt.Color(51, 51, 51));
         Panel1.setForeground(new java.awt.Color(255, 255, 255));
 
-        titlelbl.setFont(new java.awt.Font("Cambria", 1, 18)); // NOI18N
-        titlelbl.setForeground(new java.awt.Color(255, 255, 255));
-        titlelbl.setText("ADD WORDS TO PERSONAL DICTIONARY");
+        titlelbl.setFont(new java.awt.Font("Cambria", 0, 24)); // NOI18N
+        titlelbl.setForeground(new java.awt.Color(0, 102, 102));
+        titlelbl.setText("PERSONAL DICTIONARY");
 
         totalWordslbl.setFont(new java.awt.Font("Californian FB", 1, 18)); // NOI18N
         totalWordslbl.setForeground(new java.awt.Color(255, 102, 102));
@@ -117,11 +120,41 @@ public class mainWindow extends javax.swing.JFrame {
         table.setModel(getTableModel());
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setColumnSelectionAllowed(true);
+        table.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableKeyReleased(evt);
+            }
+        });
         jScrollPane2.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         tableIn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
                 {null, null},
                 {null, null},
                 {null, null},
@@ -168,14 +201,17 @@ public class mainWindow extends javax.swing.JFrame {
                 tableInMouseClicked(evt);
             }
         });
+        tableIn.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tableInKeyReleased(evt);
+            }
+        });
         jScrollPane3.setViewportView(tableIn);
         tableIn.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        tableIn.getColumnModel().getColumn(0).setMinWidth(150);
-        tableIn.getColumnModel().getColumn(0).setPreferredWidth(100);
-        tableIn.getColumnModel().getColumn(0).setMaxWidth(200);
-        tableIn.getColumnModel().getColumn(1).setMinWidth(150);
-        tableIn.getColumnModel().getColumn(1).setPreferredWidth(100);
-        tableIn.getColumnModel().getColumn(1).setMaxWidth(200);
+        tableIn.getColumnModel().getColumn(0).setResizable(false);
+        tableIn.getColumnModel().getColumn(0).setPreferredWidth(70);
+        tableIn.getColumnModel().getColumn(1).setResizable(false);
+        tableIn.getColumnModel().getColumn(1).setPreferredWidth(70);
 
         deleteAllbtn.setText("DEL");
         deleteAllbtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -184,35 +220,50 @@ public class mainWindow extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Calibri", 0, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(204, 255, 204));
+        jLabel1.setText("Word - Definition");
+
         javax.swing.GroupLayout Panel1Layout = new javax.swing.GroupLayout(Panel1);
         Panel1.setLayout(Panel1Layout);
         Panel1Layout.setHorizontalGroup(
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Panel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Panel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(Panel1Layout.createSequentialGroup()
-                        .addComponent(titlelbl)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(deleteAllbtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(totalWordslbl)
-                        .addGap(86, 86, 86)
-                        .addComponent(getDBdata, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(Panel1Layout.createSequentialGroup()
-                        .addComponent(addToDict)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(addedlbl)
+                        .addGap(20, 20, 20)
+                        .addComponent(titlelbl)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(updateTablebtn))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                        .addComponent(getDBdata)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(deleteAllbtn))
+                    .addGroup(Panel1Layout.createSequentialGroup()
+                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Panel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(totalWordslbl)
+                                .addGap(63, 63, 63))
+                            .addGroup(Panel1Layout.createSequentialGroup()
+                                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(Panel1Layout.createSequentialGroup()
+                                        .addGap(20, 20, 20)
+                                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                                .addGroup(Panel1Layout.createSequentialGroup()
+                                                    .addComponent(updateTablebtn)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(addToDict))
+                                                .addComponent(jScrollPane1))
+                                            .addGroup(Panel1Layout.createSequentialGroup()
+                                                .addGap(46, 46, 46)
+                                                .addComponent(jLabel1))))
+                                    .addGroup(Panel1Layout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addComponent(addedlbl)))
+                                .addGap(18, 18, 18)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         Panel1Layout.setVerticalGroup(
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -220,28 +271,35 @@ public class mainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(titlelbl)
-                    .addComponent(totalWordslbl)
-                    .addComponent(addedlbl)
-                    .addComponent(updateTablebtn)
-                    .addComponent(addToDict)
                     .addComponent(getDBdata, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(deleteAllbtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane2)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 555, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 555, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                    .addGroup(Panel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 555, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(22, Short.MAX_VALUE))
+                    .addGroup(Panel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(addToDict)
+                            .addComponent(updateTablebtn))
+                        .addGap(18, 18, 18)
+                        .addComponent(totalWordslbl)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addedlbl)
+                        .addGap(52, 52, 52))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(Panel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -306,7 +364,7 @@ public class mainWindow extends javax.swing.JFrame {
         TreeSet<Entries> newList = new TreeSet<Entries>(getHQLQuery(QUERY_FULL));
         for (Entries nList : newList) {
             nr++;
-            executeHQLQuery(UPDATE_QUERY, nr, nList.getWord());
+            updateHQLQuery(UPDATE_NR, nr, nList.getWord());
         }
 
         addedlbl.setText("Words added: " + added);
@@ -347,23 +405,43 @@ public class mainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_tableInMouseClicked
 
     private void deleteAllbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteAllbtnMouseClicked
-        executeHQLQuery(DELETE_QUERY_FULL, 0, "");
+        updateHQLQuery(DELETE_QUERY_FULL, 0, "");
         updateTable();
     }//GEN-LAST:event_deleteAllbtnMouseClicked
 
+    private void tableInKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableInKeyReleased
+        /*int key = evt.getKeyCode();
+        if(key==KeyEvent.VK_ENTER){
+            for (int i = 1; i < table.getRowCount(); i++) {
+                updateHQLQuery(UPDATE_DESC, i, table.getValueAt(i, 2).toString());
+            }
+        }*/
+    }//GEN-LAST:event_tableInKeyReleased
+
+    private void tableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyReleased
+        int key = evt.getKeyCode();
+        if(key==KeyEvent.VK_ENTER){
+                int row = table.getSelectedRow();
+                int col= table.getSelectedColumn();
+                String value= (String)table.getValueAt(row, col);
+                int nr = (Integer)table.getValueAt(row, 0);
+                updateHQLQuery(UPDATE_DESC, nr, value);
+        }
+    }//GEN-LAST:event_tableKeyReleased
+
     public void outputTableConf() {
-        Font font = new Font("Calibri", Font.BOLD, 12);
+        Font font = new Font("Calibri", Font.PLAIN, 14);
 
         table.getColumnModel().getColumn(0).setMinWidth(30);
         table.getColumnModel().getColumn(0).setPreferredWidth(30);
         table.getColumnModel().getColumn(0).setMaxWidth(30);
         table.setFont(font);
         table.getColumnModel().getColumn(1).setMinWidth(100);
-        table.getColumnModel().getColumn(1).setPreferredWidth(150);
-        table.getColumnModel().getColumn(1).setMaxWidth(200);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(1).setMaxWidth(150);
         table.getColumnModel().getColumn(2).setMinWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(150);
-        table.getColumnModel().getColumn(2).setMaxWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setMaxWidth(150);
         table.getColumnModel().getColumn(0).setResizable(false);
     }
 
@@ -372,8 +450,8 @@ public class mainWindow extends javax.swing.JFrame {
             List list = getHQLQuery(QUERY_FULL);
             ArrayList<String> colName = new ArrayList<String>();
             colName.add("n");
-            colName.add("PL");
-            colName.add("EN");
+            colName.add("Word");
+            colName.add("Definition");
             ListTableModel model = ListTableModel.createModelFromHQL(list, colName);
             return model;
         } catch (SQLException ex) {
@@ -415,17 +493,23 @@ public class mainWindow extends javax.swing.JFrame {
     }
     private static String QUERY_FULL = "from Entries";
     private static String DELETE_QUERY_FULL = "DELETE FROM Entries";
-    private static String UPDATE_QUERY = "UPDATE Entries set n = :nr "+ 
+    private static String UPDATE_NR = "UPDATE Entries set n = :nr "+ 
              "WHERE word = :word";
+    private static String UPDATE_DESC = "UPDATE Entries set definition = :def "+ 
+             "WHERE n = :nr";
 
-    private void executeHQLQuery(String hql, int nr, String word) {
+    private void updateHQLQuery(String hql, int nr, String text) {
         try {
             Session session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
             Query q = session.createQuery(hql);
-            if (hql.equals(UPDATE_QUERY)) {
+            if (hql.equals(UPDATE_NR)) {
                 q.setParameter("nr", nr);
-                q.setParameter("word", word);
+                q.setParameter("word", text);
+            }
+            if (hql.equals(UPDATE_DESC)) {
+                q.setParameter("nr", nr);
+                q.setParameter("def", text);
             }
             q.executeUpdate();
             session.getTransaction().commit();
@@ -497,6 +581,7 @@ public class mainWindow extends javax.swing.JFrame {
     private javax.swing.JButton deleteAllbtn;
     private javax.swing.JButton getDBdata;
     private javax.swing.JTextArea introText;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

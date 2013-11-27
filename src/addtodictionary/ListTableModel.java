@@ -299,6 +299,7 @@ public class ListTableModel extends RowTableModel<List> {
             throws SQLException {
         ListTableModel model = new ListTableModel(columnNames);
         model.setModelEditable(false);
+        model.setColumnEditable(2, true);
 
         //  Assign the class of each column
        /* for (int i = 1; i <= 3; i++) {
